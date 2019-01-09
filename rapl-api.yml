@@ -1,0 +1,5723 @@
+openapi: 3.0.1
+info:
+  title: RapL API
+  description:
+    "1. Micro-learning Format :-
+
+    \n \t Deliver bite sized learning nuggets that are easy to go through, retain and
+    apply
+
+    2. Knowledge Retention Focus :-
+
+    \n \t Based on proven spaced repetition techniques adapted to each individual
+    learner.
+
+    3. Engaging and fun to use :-
+
+     \n \t Gamified, delivered in regional languages, across web and mobile"
+  version: "3.8.14"
+servers:
+  - url: 'https://core.raplstage.com/api/'
+    description: Staging server
+  - url: 'https://core.getrapl.com/api/'
+    description: Live server
+paths:
+  '/perceive':
+    get:
+      tags:
+        - Learner service
+      description: Get topics for learner to learn
+      summary: Get topics for learner to learn
+      operationId: Get topics for learner to learn
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Learner topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        counter:
+                            type: object
+                            $ref: '#/components/schemas/topic_counter'
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/perceive/{topic_id}':
+    get:
+      tags:
+        - Learner service
+      description: Get topic with correlation for the user
+      summary: Get topic with correlation for the user
+      operationId: Get topic with correlation for the user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Topic correlation retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        counter:
+                          type: object
+                          $ref: '#/components/schemas/topic_counter'
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/perceive/{topic_id}/next':
+    get:
+      tags:
+        - Learner service
+      description: Get consumable question for a topic
+      summary: Get consumable question for a topic
+      operationId: Get consumable question for a topic
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Consumable question retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/question'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/question_trans'
+                        assets:
+                          type: object
+                          $ref: '#/components/schemas/assets'
+                        choices:
+                          $ref: '#/components/schemas/choicesWithTransAndAssets'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+                        question_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/question_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/assert/{question_id)':
+    post:
+      tags:
+        - Learner service
+      description: Assert a question
+      summary: Assert question
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          description: Specify the question unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                question_id:
+                  type: integer
+                choice_id:
+                  type: integer
+                confidence_level:
+                  type: string
+                  enum:
+                    - LOW
+                    - MEDIUM
+                    - HIGH
+      responses:
+        '200':
+          description: Answer submitted successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/question'
+                      properties:
+                        mastered:
+                          type: boolean
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/question_trans'
+                        assets:
+                          type: object
+                          $ref: '#/components/schemas/assets'
+                        choices:
+                          $ref: '#/components/schemas/choicesWithTransAndAssets'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+                        question_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/question_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/perceive/{topic_id}/files':
+    get:
+      tags:
+        - Learner service
+      description: Get topic related files
+      summary: Get topic related files
+      operationId: Get topic related files
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Topic files retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_file'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+                        bucket_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/bucket_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/perceive/{topic_id}/sequences':
+    get:
+      tags:
+        - Learner service
+      description: Get topic related learning paths
+      summary: Get topic related learning paths
+      operationId: Get topic related learning paths
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: learning paths retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/sequence'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/perceive/{topic_id}/sequences/{sequence_id}':
+    get:
+      tags:
+        - Learner service
+      description: Get topics under user's learning path
+      summary: Get topics under user's learning path
+      operationId: Get topics under user's learning path
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+        - name: sequence_id
+          in: path
+          required: true
+          description: Specify the sequence/learning path unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/bookmarks':
+    get:
+      tags:
+        - Learner service
+      description: Get bookmarks for user
+      summary: Get bookmarks for user
+      operationId: Get bookmarks for user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Bookmarks retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    post:
+      tags:
+        - Learner service
+      description: Bookmark mastered questions
+      summary: Bookmark mastered questions
+      operationId: Bookmark mastered questions
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                question_ids:
+                  type: array
+                  items:
+                    type: integer
+                    example: [20,30]
+      responses:
+        '204':
+          description: Bookmarked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/bookmarks/{topic_id}/questions':
+    get:
+      tags:
+        - Learner service
+      description: Get bookmarked topic questions for user
+      summary: Get bookmarked topic questions for user
+      operationId: Get bookmarked topic questions for user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bookmarked topic questions retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/question'
+                      properties:
+                        mastered:
+                          type: boolean
+                        bookmarked:
+                          type: boolean
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/question_trans'
+                        assets:
+                          type: object
+                          $ref: '#/components/schemas/assets'
+                        choices:
+                          $ref: '#/components/schemas/choicesWithTransAndAssets'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/bookmarks/undo':
+    post:
+      tags:
+        - Learner service
+      description: Unbookmark mastered questions
+      summary: Unbookmark mastered questions
+      operationId: Unbookmark mastered questions
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                question_ids:
+                  type: array
+                  items:
+                    type: integer
+                    example: [20,30]
+      responses:
+        '204':
+          description: Unbookmarked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/history':
+    get:
+      tags:
+        - Learner service
+      description: Get paginated history topics
+      summary: Get paginated history topics
+      operationId: Get paginated history topics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/history/{topic_id}/questions':
+    get:
+      tags:
+        - Learner service
+      description: Get questions for the topic
+      summary: Get questions for the topic
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          description: Specify the topic unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Topic questions retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/question'
+                      properties:
+                        mastered:
+                          type: boolean
+                        bookmarked:
+                          type: boolean
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/question_trans'
+                        assets:
+                          type: object
+                          $ref: '#/components/schemas/assets'
+                        choices:
+                          $ref: '#/components/schemas/choicesWithTransAndAssets'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library':
+    get:
+      tags:
+        - Learner service
+      description: Get library files
+      summary: Get library files
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+      responses:
+        '200':
+          description: Library files retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_file'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+                        bucket_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/bucket_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/categories':
+    get:
+      tags:
+        - Learner service
+      description: Get searchable categories for filtering the files
+      summary: Get searchable categories for filtering the files
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Library categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/file_categories'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/topics':
+    get:
+      tags:
+        - Learner service
+      description: Get searchable topics for filtering the files
+      summary: Get searchable topics for filtering the files
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Library topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topic_id:
+                          type: integer
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/{f_id}':
+    get:
+      tags:
+        - Learner service
+      description: Get searchable topics for filtering the files
+      summary: Get searchable topics for filtering the files
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Library file details retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_file'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+                        bucket_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/bucket_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/{f_id}/bookmark':
+    post:
+      tags:
+        - Learner service
+      description: Bookmark a file
+      summary: Bookmark a file
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: File bookmarked retrieved successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/{f_id}/unbookmark':
+    post:
+      tags:
+        - Learner service
+      description: Unbookmark a file
+      summary: Unbookmark a file
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: File unbookmarked retrieved successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/{f_id}/markAsViewed':
+    post:
+      tags:
+        - Learner service
+      description: Mark a file as viewed
+      summary: Mark a file as viewed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Marked as viewed
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/library/history':
+    get:
+      tags:
+        - Learner service
+      description: Get viewed files list
+      summary: Get viewed files list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+      responses:
+        '200':
+          description: Marked as viewed
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_file'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+                        bucket_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/bucket_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/opinions':
+    get:
+      tags:
+        - Learner service
+      description: Get opinions for end user
+      summary: Get opinions for end user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Opinion retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/opinions/{opinion_id}':
+    get:
+      tags:
+        - Learner service
+      description: Get opinions for end user
+      summary: Get opinions for end user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opinion_id
+          in: path
+          required: true
+          description: Specify opinion unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Opinion retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    post:
+      tags:
+        - Learner service
+      description: Submit an opinion
+      summary: Submit an opinion
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opinion_id
+          in: path
+          required: true
+          description: Specify opinion unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question_id:
+                        type: integer
+                      choices:
+                        type: array
+                        items:
+                          type: integer
+                      answer:
+                        type: string
+
+      responses:
+        '200':
+          description: Opinion submitted successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey_question'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/opinions/{opinion_id}/questions':
+    get:
+      tags:
+        - Learner service
+      description: Get opinion questions
+      summary: Get opinion questions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opinion_id
+          in: path
+          required: true
+          description: Specify opinion unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Opinion retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey_question'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/opinions/history':
+    get:
+      tags:
+        - Learner service
+      description: Get opinion history
+      summary: Get opinion history
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Opinion retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/opinions/history/{opinion_id}/questions':
+    get:
+      tags:
+        - Learner service
+      description: Get history questions for a opinion
+      summary: Get history questions for a opinion
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opinion_id
+          in: path
+          required: true
+          description: Specify opinion unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Opinion retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey_question'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/unseen':
+     get:
+      tags:
+        - Learner service
+      description: Get unseen counter for an user
+      summary: Get unseen counter for an user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Unseen counter retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                    counter:
+                      type: object
+                      properties:
+                        topics:
+                          type: integer
+                          example: 1
+                        files:
+                          type: integer
+                          example: 1
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/users':
+    post:
+      tags:
+        - User service
+      description: Create an user
+      summary: Create user
+      operationId: createUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                send_invitation:
+                  type: boolean
+                language:
+                  type: string
+                first_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+            examples:
+              '0':
+                value: "{\n    \"email\" : \"hey@gmail.com\",\n\t\"first_name\" : \"dubakur\",\n\t\"send_invitation\": false,\n\t\"language\" : \"EN\"\n}"
+      responses:
+        '201':
+          description: null responses
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    get:
+      tags:
+        - User service
+      description: Returns all users in the organisation.
+      summary: Find users
+      operationId: getUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/user'
+                      properties:
+                        nodes:
+                          type: object
+                          $ref: '#/components/schemas/nodes'
+                        custom_profile_fields:
+                          type: object
+                          $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/users/{user_id}':
+    get:
+      tags:
+        - User service
+      description: Retrieve details of particular user
+      summary: Find user
+      operationId: getUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Specify the user unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    patch:
+      tags:
+         - User service
+      description: Patch update user
+      summary: Patch update user
+      operationId: patchUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Specify the user unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                email/mobile_number:
+                  type: string
+                language:
+                  type: string
+            examples:
+              '0':
+                value: "{\n    \"email\" : \"hey@gmail.com\",\n\t\"first_name\" : \"dubakur\",\n\t\"language\" : \"EN\"\n}"
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    put:
+      tags:
+         - User service
+      description: Update user
+      summary: Update user
+      operationId: updateUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Specify the user unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                email:
+                  type: string
+                mobile_number:
+                  type: number
+                language:
+                  type: string
+                force_change_password:
+                  type: boolean
+            examples:
+              '0':
+                value: "{\n    \"email\" : \"hey@gmail.com\",\n\t\"first_name\" : \"dubakur\",\n\t\"language\" : \"EN\"\n}"
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/users/{user_id}/topics':
+    get:
+      tags:
+        - User service
+      description: Retrieve user topic details
+      summary: Get user topics
+      operationId: getUserTopics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Specify the user unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: User topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic_mini'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+                        topic_user_correlation:
+                          type: object
+                          $ref: '#/components/schemas/topic_user_correlation'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/users/delete':
+    post:
+      tags:
+        - User service
+      description: Delete user
+      summary: Delete user
+      operationId: deleteUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/users/invite':
+    post:
+      tags:
+        - User service
+      description: Invite user
+      summary: Invite user
+      operationId: userInvite
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: User invited successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/owner':
+    post:
+      tags:
+        - User service
+      description: Create owner
+      summary: Create owner
+      operationId: createOwner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Owner created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/owner/verify':
+    post:
+      tags:
+        - Security service
+      description: Verify owner
+      summary: Verify owner
+      operationId: verifyOwner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                verification_code:
+                  type: integer
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+      responses:
+        '200':
+          description: Owner verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  token:
+                    type: string
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/login/lookup/user':
+    post:
+      tags:
+        - Security service
+      description: Lookup for user in organisation
+      summary: Lookup for user in organisation
+      operationId: lookupUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+                prinicipal:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - EMAIL
+                    - MOBILE
+      responses:
+        '200':
+          description: User lookup successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - ACTIVE
+                      - INACTIVE
+                  language:
+                    type: string
+                    enum:
+                      - BN
+                      - EN
+                      - GU
+                      - HI
+                      - KN
+                      - ML
+                      - MR
+                      - TA
+                      - TE
+                  force_change_password:
+                    type: boolean
+                  action:
+                    type: string
+                  avatar:
+                    type: string
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/login/lookup/code':
+    post:
+      tags:
+        - Security service
+      description: Lookup for user verification code
+      summary: Lookup for user verification code
+      operationId: lookupCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+                prinicipal:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - EMAIL
+                    - MOBILE
+                verification_code:
+                  type: integer
+      responses:
+        '204':
+          description: Code lookup successful
+          content:
+            application/json:
+              schema:
+                type: object
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/set/password':
+    put:
+      tags:
+        - Security service
+      description: Set user password and return user access tokens
+      summary: Set user password
+      operationId: setPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+                prinicipal:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - EMAIL
+                    - MOBILE
+                password:
+                  type: string
+                client_id:
+                  type: integer
+                client_secret:
+                  type: string
+                verification_code:
+                  type: integer
+      responses:
+        '200':
+          description: Password set successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+                  privileges:
+                    $ref: '#/components/schemas/privileges'
+                  credit:
+                    $ref: '#/components/schemas/user_credit'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/login/challenge/password':
+    post:
+      tags:
+        - Security service
+      description: Authenticate user
+      summary: Authenticate user
+      operationId: challengePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+                prinicipal:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - EMAIL
+                    - MOBILE
+                password:
+                  type: string
+                client_id:
+                  type: integer
+                client_secret:
+                  type: string
+      responses:
+        '200':
+          description: Password challenge successful
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+                  privileges:
+                    $ref: '#/components/schemas/privileges'
+                  credit:
+                    $ref: '#/components/schemas/user_credit'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/generate/code':
+    post:
+      tags:
+        - Security service
+      description: Generate code for the user
+      summary: Generate code for the user
+      operationId: generateCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+                prinicipal:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - EMAIL
+                    - MOBILE
+      responses:
+        '204':
+          description: Code generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/token/refresh':
+    post:
+      tags:
+        - Security service
+      description: Get tokens using refresh token grant
+      summary: Get tokens using refresh token grant
+      operationId: getTokens
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                client_id:
+                  type: integer
+                client_secret:
+                  type: string
+      responses:
+        '204':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  grant_type:
+                    type: string
+                    example: 'refresh_token'
+                  refresh_token:
+                    type: string
+                  client_id:
+                    type: integer
+                  client_secret:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/token/register':
+    post:
+      tags:
+        - Security service
+      description: Register FCM token for an user
+      summary: Register FCM token for an user
+      operationId: registerFCMToken
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: string
+                  maximum: 1000
+                source:
+                  type: string
+                  enum:
+                    - WEB
+                    - ANDROID
+                    - IOS
+      responses:
+        '204':
+          description: FCM token registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/logout':
+    post:
+      tags:
+        - Security service
+      description: Logout user
+      summary: Logout user
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: User logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/profile':
+    get:
+      tags:
+        - User service
+      description: Get user profile details
+      summary: Get user profile details
+      operationId: getProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Retrieved profile information successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+                  privileges:
+                    $ref: '#/components/schemas/privileges'
+                  credit:
+                    $ref: '#/components/schemas/user_credit'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    patch:
+      tags:
+        - User service
+      description: Updated user details
+      summary: Updated user details
+      operationId: updateProfile
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                language:
+                  type: string
+                  enum:
+                    - BN
+                    - EN
+                    - GU
+                    - HI
+                    - KN
+                    - ML
+                    - MR
+                    - TA
+                    - TE
+                asset_id:
+                  type: integer
+            examples:
+              '0':
+                value: "{\n    \"email\" : \"hey@gmail.com\",\n\t\"first_name\" : \"dubakur\",\n\t\"language\" : \"EN\"\n}"
+      responses:
+        '200':
+          description: Retrieved profile information successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+                  privileges:
+                    $ref: '#/components/schemas/privileges'
+                  credit:
+                    $ref: '#/components/schemas/user_credit'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/profile/code':
+    post:
+      tags:
+        - Security service
+      description: Update principal request
+      summary: Update principal request
+      operationId: generateCodeForUpdate
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                principal:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - MOBILE
+                    - EMAIL
+      responses:
+        '204':
+          description: Code generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/profile/email':
+    put:
+      tags:
+        - User service
+      description: Change email for the user
+      summary: Change email for the user
+      operationId: changeEmail
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                verification_code:
+                  type: integer
+                email:
+                  type: string
+                  format: email
+      responses:
+        '204':
+          description: Email changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    delete:
+      tags:
+        - User service
+      description: Delete email for user
+      summary: Delete email for user
+      operationId: deleteEmail
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Email deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/profile/mobile':
+    put:
+      tags:
+        - User service
+      description: Change mobile for the user
+      summary: Change mobile for the user
+      operationId: changeMobile
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                verification_code:
+                  type: integer
+                mobile_country_iso:
+                  type: string
+                mobile_number:
+                  type: number
+      responses:
+        '204':
+          description: Mobile changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    delete:
+      tags:
+        - User service
+      description: Delete mobile for user
+      summary: Delete mobile for user
+      operationId: deleteMobile
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Mobile deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/profile/avatar':
+    put:
+      tags:
+        - User service
+      description: Upload avatar
+      summary:  Upload avatar
+      operationId: avatar
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                width:
+                  type: integer
+                height:
+                  type: integer
+                point_x:
+                  type: integer
+                  minimum: 0
+                point_y:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Avatar uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+                  privileges:
+                    $ref: '#/components/schemas/privileges'
+                  credit:
+                    $ref: '#/components/schemas/user_credit'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    delete:
+      tags:
+        - User service
+      description: Remove avatar
+      summary: Remove avatar
+      operationId: RemoveAvatar
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Avatar removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/user'
+                properties:
+                  nodes:
+                    type: object
+                    $ref: '#/components/schemas/nodes'
+                  custom_profile_fields:
+                    type: object
+                    $ref: '#/components/schemas/custom_fields'
+                  privileges:
+                    $ref: '#/components/schemas/privileges'
+                  credit:
+                    $ref: '#/components/schemas/user_credit'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/credit':
+    get:
+      tags:
+        - User service
+      description: Get user credit
+      summary: Get user credit
+      operationId: getCredit
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User credit retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user_credit'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+
+  '/login/lookup/org':
+    post:
+      tags:
+        - Org service
+      description: Retrieve organisation
+      summary: Retrieve organisation
+      operationId: Retrieve organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+      responses:
+        '200':
+          description: Org lookup successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/org'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs/domain':
+    post:
+      tags:
+        - Org service
+      description: Check for domain name availability
+      summary: Check for domain name availability
+      operationId: Check for domain name availability
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+      responses:
+        '200':
+          description: Org domain name exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                  suggestions:
+                    type: string
+                    default: null
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs':
+    post:
+      tags:
+        - Org service
+      description: Create an organisation
+      summary: Create an organisation
+      operationId: Create an organisation
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                domain:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Org created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/org'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    get:
+      tags:
+        - Org service
+      description: Get organisation details
+      summary: Get organisation details
+      operationId: Get organisation details
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Org details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/org'
+                properties:
+                  owner:
+                    type: object
+                    $ref: '#/components/schemas/owner'
+                  settings:
+                    type: object
+                    $ref: '#/components/schemas/org_settings'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs/delete':
+    post:
+      tags:
+        - Org service
+      description: Delete organisation
+      summary: Delete organisation
+      operationId: Delete organisation
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Org deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs/settings':
+    post:
+      tags:
+        - Org service
+      description: Upsert org settings
+      summary: Upsert org settings
+      operationId: update organisation
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                settings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        property:
+                          type: string
+                        value:
+                          type: string
+      responses:
+        '201':
+          description: Org settings updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/org'
+                properties:
+                  settings:
+                    type: object
+                    $ref: '#/components/schemas/org_settings'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs/logo':
+    put:
+      tags:
+        - Org service
+      description: create org logo
+      summary:  create org logo
+      operationId: create
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                width:
+                  type: integer
+                height:
+                  type: integer
+                point_x:
+                  type: integer
+                  minimum: 0
+                point_y:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: org logo uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/org'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    delete:
+      tags:
+        - Org service
+      description: Remove org logo
+      summary: Remove org logo
+      operationId: Remove org logo
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Org logo removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/org'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs/customProfileFields':
+    post:
+      tags:
+        - Org service
+      description: Create a custom profile field
+      summary: Create a custom profile field
+      operationId: Create a custom profile field
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                property:
+                  type: string
+                label:
+                  type: string
+                is_mandatory:
+                  type: boolean
+                component_type:
+                  type: string
+                  enum:
+                    - DESCRIPTIVE
+                    - DROPDOWN
+                allowed_values:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: custom fields created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profile_fields'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    get:
+      tags:
+        - Org service
+      description: Get custom profile fields for org
+      summary: Get custom profile fields for org
+      operationId: Get custom profile fields for org
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Custom fields retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/profile_fields'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/orgs/customProfileFields/{org_id}':
+    post:
+      tags:
+        - Org service
+      description: Create a custom profile field
+      summary: Create a custom profile field
+      operationId: Create a custom profile field
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          description: Specify the org unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                property:
+                  type: string
+                label:
+                  type: string
+                is_mandatory:
+                  type: boolean
+                component_type:
+                  type: string
+                  enum:
+                    - DESCRIPTIVE
+                    - DROPDOWN
+                allowed_values:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: custom fields created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profile_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    get:
+      tags:
+        - Org service
+      description: Get custom profile field for org
+      summary: Get custom profile field for org
+      operationId: Get custom profile field for org
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          description: Specify the org unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Custom fields retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profile_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes':
+    post:
+      tags:
+        - Node service
+      description: Create a group
+      summary: Create a group
+      operationId: Create a group
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                short_code:
+                  type: string
+                description:
+                  type: string
+                parent_node_id:
+                  type: integer
+      responses:
+        '200':
+          description: Group created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/node'
+                properties:
+                  counter:
+                    type: object
+                    $ref: '#/components/schemas/counter'
+                  owner:
+                    type: object
+                    $ref: '#/components/schemas/owner'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    get:
+      tags:
+        - Node service
+      description: Get list of nodes
+      summary: Get list of nodes
+      operationId: Get list of nodes
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Group details retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/node'
+                      properties:
+                        counter:
+                          type: object
+                          $ref: '#/components/schemas/counter'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}':
+    get:
+      tags:
+        - Node service
+      description: Group details
+      summary: Group details
+      operationId: Group details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Group details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/node'
+                properties:
+                  counter:
+                    type: object
+                    $ref: '#/components/schemas/counter'
+                  owner:
+                    type: object
+                    $ref: '#/components/schemas/owner'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    patch:
+      tags:
+        - Node service
+      description: Update group details
+      summary: Update group details
+      operationId: Update group details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Group details updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/node'
+                properties:
+                  counter:
+                    type: object
+                    $ref: '#/components/schemas/counter'
+                  owner:
+                    type: object
+                    $ref: '#/components/schemas/owner'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/delete':
+    post:
+      tags:
+        - Node service
+      description: Delete a group
+      summary: Delete a group
+      operationId: Delete a group
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                node_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Group deleted successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/users':
+    get:
+      tags:
+        - Node service
+      description: Get assigned users list
+      summary: Get assigned users list
+      operationId: Get assigned users list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Assinged users retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/user'
+                      properties:
+                        nodes:
+                          type: object
+                          $ref: '#/components/schemas/node'
+                        custom_profile_fields:
+                          type: object
+                          $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    put:
+      tags:
+        - Node service
+      description: Assign users to group
+      summary: Assign users to group
+      operationId: Assign users to group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+                role:
+                  type: string
+                  enum:
+                    - LEARNER
+                    - NODE_ADMIN
+                    - NODE MONITOR
+      responses:
+        '204':
+          description: Users assigned successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    patch:
+      tags:
+        - Node service
+      description: Update users in a group
+      summary: Update users in a group
+      operationId: Update users in a group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+                role:
+                  type: string
+                  enum:
+                    - LEARNER
+                    - NODE_ADMIN
+                    - NODE MONITOR
+      responses:
+        '204':
+          description: Users updated successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/prospectUsers':
+    get:
+      tags:
+        - Node service
+      description: Get prospect users list for assigning
+      summary: Get prospect users list for assigning
+      operationId: Get prospect users list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect users retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/user'
+                      properties:
+                        nodes:
+                          type: object
+                          $ref: '#/components/schemas/node'
+                        custom_profile_fields:
+                          type: object
+                          $ref: '#/components/schemas/custom_fields'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/users/delete':
+    post:
+      tags:
+        - Node service
+      description: Revoke users from a group
+      summary: Revoke users from a group
+      operationId: Revoke users from a group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Users revoked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/topics':
+    get:
+      tags:
+        - Node service
+      description: Get assigned topics list
+      summary: Get assigned topics list
+      operationId: Get assigned topics list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Assinged topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        counter:
+                          type: object
+                          properties:
+                            questions:
+                              type: integer
+                            files:
+                              type: integer
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    put:
+      tags:
+        - Node service
+      description: Assign topics to group
+      summary: Assign topics to group
+      operationId: Assign topics to group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                topic_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Topics assigned successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/prospectTopics':
+    get:
+      tags:
+        - Node service
+      description: Get prospect topic list for assigning
+      summary: Get prospect topic list for assigning
+      operationId: Get prospect topic list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect topics retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/topic'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/topic_translations'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/topics/delete':
+    post:
+      tags:
+        - Node service
+      description: Revoke topics from a group
+      summary: Revoke topics from a group
+      operationId: Revoke topics from a group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                topic_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Topics revoked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/sequences':
+    get:
+      tags:
+        - Node service
+      description: Get assigned sequences list
+      summary: Get assigned sequences list
+      operationId: Get assigned sequences list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Assinged learning paths retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/sequence'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    put:
+      tags:
+        - Node service
+      description: Assign sequences to group
+      summary: Assign sequences to group
+      operationId: Assign sequences to group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                sequence_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Sequences assigned successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/prospectSequences':
+    get:
+      tags:
+        - Node service
+      description: Get prospect sequence list for assigning
+      summary: Get prospect sequence list for assigning
+      operationId: Get prospect sequence list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect sequences retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/sequence'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/sequence/delete':
+    post:
+      tags:
+        - Node service
+      description: Revoke sequences from a group
+      summary: Revoke sequences from a group
+      operationId: Revoke sequences from a group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                sequence_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Sequences revoked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/insights':
+    get:
+      tags:
+        - Node service
+      description: Get assigned insights list
+      summary: Get assigned insights list
+      operationId: Get assigned insights list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Assinged insights retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/survey_categories'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+    put:
+      tags:
+        - Node service
+      description: Assign insights to group
+      summary: Assign insights to group
+      operationId: Assign insights to group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                insight_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Insights assigned successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/prospectInsights':
+    get:
+      tags:
+        - Node service
+      description: Get prospect insights list for assigning
+      summary: Get prospect insights list for assigning
+      operationId: Get prospect insights list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect insights retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/survey'
+                      properties:
+                        translations:
+                          type: object
+                          $ref: '#/components/schemas/translations'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/survey_categories'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/insights/delete':
+    post:
+      tags:
+        - Node service
+      description: Revoke insights from a group
+      summary: Revoke insights from a group
+      operationId: Revoke insights from a group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                insight_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Insights revoked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/files/explorer':
+    get:
+      tags:
+        - Node service
+      description: Get assigned files list
+      summary: Get assigned files list
+      operationId: Get assigned files list
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Assinged files retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_folder'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+                        counter:
+                          type: object
+                          $ref: '#/components/schemas/file_counter'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/files/{f_id}/explorer':
+    get:
+      tags:
+        - Node service
+      description: Get assigned files list for assigning
+      summary: Get assigned files list for assigning
+      operationId: Get assigned files list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect files retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_file'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/prospectFiles/explorer':
+    get:
+      tags:
+        - Node service
+      description: Get prospect files list for assigning
+      summary: Get prospect files list for assigning
+      operationId: Get prospect files list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect files retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_folder'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+                        counter:
+                          type: object
+                          $ref: '#/components/schemas/file_counter'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/prospectFiles/{f_id}/explorer':
+    get:
+      tags:
+        - Node service
+      description: Get prospect files list for assigning
+      summary: Get prospect files list for assigning
+      operationId: Get prospect files list for assigning
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+        - name: f_id
+          in: path
+          required: true
+          description: Specify the file unique identifier
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: Prospect files retrieved successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      $ref: '#/components/schemas/bucket_file'
+                      properties:
+                        renditions:
+                          type: object
+                          $ref: '#/components/schemas/file_video_renditions'
+                        thumbnails:
+                          type: object
+                          $ref: '#/components/schemas/file_thumbnails'
+                        owner:
+                          type: object
+                          $ref: '#/components/schemas/owner'
+                        categories:
+                          type: object
+                          $ref: '#/components/schemas/file_categories'
+                        tags:
+                          type: object
+                          $ref: '#/components/schemas/file_tags'
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/files':
+    put:
+      tags:
+        - Node service
+      description: Assign insights to group
+      summary: Assign insights to group
+      operationId: Assign insights to group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                fids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Files assigned successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+  '/nodes/{node_id}/files/delete':
+    post:
+      tags:
+        - Node service
+      description: Revoke insights to group
+      summary: Revoke insights to group
+      operationId: Revoke insights to group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: node_id
+          in: path
+          required: true
+          description: Specify the group unique identifier
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                fids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '204':
+          description: Files revoked successfully
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '422':
+          description: Unprocessable Entity
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unprocessable'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+components:
+  schemas:
+    assets:
+      type: array
+      items:
+        type: object
+        properties:
+          asset_id:
+            type: integer
+            minimum: 1
+          name:
+            type: string
+          unique_id:
+            type: string
+          type:
+            type: string
+            enum:
+              - IMAGE
+          extention:
+            type: string
+          meme-type:
+            type: string
+          created_at:
+            type: string
+            format: date-time
+    bucket_file:
+      type: object
+      properties:
+        f_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'Refactoring UI'
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - FOLDER
+            - PDF
+            - VIDEO
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - PROCESSING
+            - CANCELLED
+            - FAILED
+        language:
+          type: string
+          enum:
+            - BR
+            - HI
+        importance_level:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+        file_type:
+          type: string
+          example: url
+        file_size:
+          type: integer
+          example: 0
+        mime_type:
+          type: string
+          example: text\/uri-list
+        source:
+          type: string
+          format: url
+        is_downloadable:
+          type: boolean
+        is_bookmarkable:
+          type: boolean
+        is_rateable:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    bucket_folder:
+      type: object
+      properties:
+        f_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'Refactoring UI'
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - FOLDER
+            - PDF
+            - VIDEO
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - PROCESSING
+            - CANCELLED
+            - FAILED
+        created_at:
+          type: string
+          format: date-time
+    bucket_user_correlation:
+      type: object
+      properties:
+        downloaded:
+          type: boolean
+        bookmarked:
+          type: boolean
+        rating:
+          type: integer
+        views:
+          type: integer
+        viewed_at:
+          type: string
+          format: date-time
+        assigned_at:
+          type: string
+          format: date-time
+    choice:
+      type: object
+      properties:
+        choice_id:
+          type: integer
+          example: 1
+        position:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+    choice_trans:
+      type: array
+      items:
+        type: object
+        properties:
+          trans_id:
+            type: integer
+            example: 1
+          language:
+            type: string
+            enum:
+              - BN
+              - EN
+              - GU
+              - HI
+              - KN
+              - ML
+              - MR
+              - TA
+              - TE
+          choice:
+            type: string
+          rationale:
+            type: string
+          default:
+            type: boolean
+    choicesWithTransAndAssets:
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/choice'
+        properties:
+          translations:
+            $ref: '#/components/schemas/choice_trans'
+          assets:
+            $ref: '#/components/schemas/assets'
+    counter:
+      type: object
+      properties:
+        nodes:
+          type: integer
+          minimum: 1
+        users:
+          type: integer
+        topics:
+          type: integer
+        sequences:
+          type: integer
+        files:
+          type: integer
+        insights:
+          type: integer
+    custom_fields:
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+          value:
+            type: string
+    file_categories:
+      type: array
+      items:
+        type: object
+        properties:
+          category_id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: 'category1'
+    file_counter:
+        type: object
+        properties:
+          folder_count:
+            type: integer
+            example: 1
+          file_count:
+            type: integer
+            example: 1
+    file_tags:
+      type: array
+      items:
+        type: string
+        example: ['education', 'mathematics']
+    file_thumbnails:
+      type: array
+      items:
+        type: object
+        properties:
+          thumbnail_id:
+            type: integer
+            example: 1
+          width:
+            type: integer
+          height:
+            type: string
+          source:
+            type: string
+            format: url
+    file_video_renditions:
+      type: array
+      items:
+        type: object
+        properties:
+          rendition_id:
+            type: integer
+            minimum: 2
+          hls:
+            type: string
+    node:
+      type: object
+      properties:
+        node_id:
+          type: integer
+          minimum: 2
+        name:
+          type: string
+        parent_node_id:
+          type: integer
+          nullable: true
+        short_code:
+          type: integer
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    nodes:
+      type: array
+      items:
+        type: object
+        properties:
+          node_id:
+            type: integer
+            minimum: 1
+          name:
+            type: string
+          role:
+            type: string
+          assigned_at:
+            type: string
+            format: date-time
+    org:
+      type: object
+      properties:
+          org_id:
+           type: integer
+          name:
+            type: string
+          domain:
+            type: string
+          primary_prinicipal:
+            type: string
+            enum:
+              - MOBILE
+              - EMAIL
+          status:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+          logo:
+            type: string
+            format: url
+          created_at:
+            type: string
+            format: date-time
+    org_settings:
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+          value:
+            type: string
+    owner:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+    privileges:
+      type: array
+      items:
+        type: string
+        example: ["org.*",
+                  "user.*",
+                  "node.*",
+                  "topic.*",
+                  "monitor.*",
+                  "leaderboard.*",
+                  "sequence.*",
+                  "bucket.*",
+                  "survey.*",
+                  "import.*",
+                  "bundle.*"
+                ]
+    profile_fields:
+      type: array
+      items:
+        type: object
+        properties:
+          property_id:
+            type: integer
+          property:
+            type: string
+          label:
+            type: string
+          is_mandatory:
+            type: boolean
+          component_type:
+            enum:
+              - DESCRIPTIVE
+              - DROPDOWN
+          allowed_values:
+            type: array
+            items:
+              type: string
+    question:
+      type: object
+      properties:
+        question_id:
+          type: integer
+          example: 1
+        position:
+          type: integer
+          example: 1
+        choice_view:
+          type: string
+          enum:
+            - TEXT
+            - IMAGE
+            - HYBRID
+        created_at:
+          type: string
+          format: date-time
+    question_trans:
+      type: array
+      items:
+        type: object
+        properties:
+          trans_id:
+            type: integer
+            example: 1
+          language:
+            type: string
+            enum:
+              - BN
+              - EN
+              - GU
+              - HI
+              - KN
+              - ML
+              - MR
+              - TA
+              - TE
+          question:
+            type: string
+          hint:
+            type: string
+          default:
+            type: boolean
+    question_user_correlation:
+      type: object
+      properties:
+        points:
+          type: integer
+          example: 33
+        points_split:
+          type: array
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+                example: 'QUESTION_MASTERY'
+              points:
+                type: integer
+                example: 18
+        tips:
+          type: array
+          items:
+            type: string
+        mastered:
+          type: boolean
+        released_at:
+          type: string
+          format: date-time
+    sequence:
+      type: object
+      properties:
+        sequence_id:
+          type: integer
+          example: 1
+        short_code:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - INACTIVE
+            - LIVE
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    survey:
+      type: object
+      properties:
+        insight_id:
+          type: integer
+          example: 1
+        short_code:
+          type: string
+        type:
+          type: string
+          enum:
+            - POLL
+            - SURVEY
+        theme:
+          type: array
+          items:
+            type: string
+          example: [
+            primary => f3efg5,
+            secondary => ce98fdf,
+            tertiary => avb45v
+          ]
+        view_report:
+          type: boolean
+        reponses:
+          type: object
+          properties:
+            count:
+              type: integer
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - LIVE
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    survey_categories:
+      type: array
+      items:
+        type: object
+        properties:
+          category_id:
+            type: integer
+          name:
+            type: string
+            example: Category 1
+    survey_question:
+      type: object
+      properties:
+        question_id:
+          type: integer
+          example: 1
+        question_type:
+          type: string
+          enum:
+            - MCQ
+            - SA
+        choice_view:
+          type: string
+          enum:
+            - TEXT
+            - IMAGE
+            - HYBRID
+        is_mandatory:
+          type: boolean
+        position:
+          type: integer
+          example: 1
+        reponses:
+          type: object
+          properties:
+            count:
+              type: integer
+        created_at:
+          type: string
+          format: date-time
+    topic:
+      type: object
+      properties:
+        topic_id:
+          type: integer
+          example: 1
+        short_code:
+          type: string
+          example: 'short1'
+        min_mastery_question:
+          type: integer
+          example: 1
+        mastery_confidence_count:
+          type: integer
+          example: 1
+        release_count:
+          type: integer
+          example: 1
+        release_frequency:
+          type: object
+          properties:
+            days:
+              type: array
+              items:
+                type: integer
+              example: [1,2,3,4,5,6]
+            hour:
+              type: integer
+              example: 5
+            minute:
+              type: integer
+              example: 5
+            expression:
+              type: string
+              example: '5 5 * * 1,2,3,4,5,6'
+        max_backlog_questions:
+          type: integer
+          example: 1
+        max_mastery_days:
+          type: integer
+          example: 1
+        initial_shuffle:
+          type: boolean
+        preliminary:
+          type: boolean
+        status:
+          type: string
+          enum:
+            - LIVE
+            - INACTIVE
+            - DRAFT
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        scheduled_at:
+          type: string
+          format: date-time
+    topic_counter:
+      type: object
+      properties:
+        questions:
+          type: integer
+          example: 1
+        files:
+          type: integer
+          example: 1
+    topic_translations:
+      type: array
+      items:
+        type: object
+        properties:
+          trans_id:
+            type: integer
+          language:
+            type: string
+            enum:
+              - BN
+              - EN
+              - GU
+              - HI
+              - KN
+              - ML
+              - MR
+              - TA
+              - TE
+          title:
+            type: string
+          description:
+            type: string
+          default:
+            type: boolean
+    topic_mini:
+      type: object
+      properties:
+        topic_id:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum:
+            - LIVE
+            - INACTIVE
+            - DRAFT
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+    topic_user_correlation:
+      type: object
+      properties:
+        mastered:
+          type: boolean
+        priority:
+          type: string
+          enum:
+            - HIGH
+            - LOW
+        rank:
+          type: integer
+        strength:
+          type: integer
+        mastered_count:
+            type: integer
+        bookmarked_count:
+          type: integer
+        backlog_count:
+          type: integer
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        iteration:
+          type: integer
+        updated_at:
+          type: string
+          format: date-time
+        mastered_at:
+          type: string
+          format: date-time
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        competence:
+          type: boolean
+          default: true
+    translations:
+      type: array
+      items:
+        type: object
+        properties:
+          trans_id:
+            type: integer
+            example: 1
+          language:
+            type: string
+            enum:
+              - BN
+              - EN
+              - GU
+              - HI
+              - KN
+              - ML
+              - MR
+              - TA
+              - TE
+          title:
+            type: string
+          description:
+            type: string
+          default:
+            type: boolean
+    user:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: Naveen
+        last_name:
+          type: string
+          example: kumar
+        email:
+          type: string
+          format: email
+          example: naveen@linkstreet.in
+        mobile_number:
+          type: number
+          example: +9199403232389
+        is_email_verified:
+          type: boolean
+        is_mobile_verified:
+          type: boolean
+        role:
+          type: string
+          enum:
+            - ORG_ADMIN
+            - LEARNER
+            - NODE_ADMIN
+            - AUTHOR
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        language:
+          type: string
+          enum:
+            - BN
+            - EN
+            - GU
+            - HI
+            - KN
+            - ML
+            - MR
+            - TA
+            - TE
+        force_change_password:
+          type: boolean
+        avatar:
+          type: string
+          format: uri
+        invited_at:
+          type: string
+          format: date-time
+        activated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    user_credit:
+      type: object
+      properties:
+        points:
+          type: integer
+        badge_count:
+          type: integer
+    InternalError:
+      type: string
+      example: Internal server error
+    NotFound:
+      type: string
+      example: Not found
+    Unauthorized:
+      type: string
+      example: Unauthenticated request
+    Unprocessable:
+      type: string
+      example: Unprocessable Entity
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: Specify the pagination limit
+      schema:
+        type: integer
+        minimum: 15
+        maximum: 30
+    filter:
+      name: filter
+      description: search criteria
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    sortBy:
+      name: sort_by
+      description: sort criteria
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
